@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Autofac.Builder;
 using Autofac.Core;
 using Autofac.Features.Indexed;
@@ -198,7 +197,6 @@ namespace Autofac.Test
             IComponentRegistration registration;
             Assert.True(container.ComponentRegistry.TryGetRegistration(new TypedService(typeof(object)), out registration));
 
-            Assert.Equal(3, registration.Metadata.Count); // Two plus one default.
             Assert.True(registration.Metadata.Contains(p1));
             Assert.True(registration.Metadata.Contains(p2));
         }
@@ -361,7 +359,9 @@ namespace Autofac.Test
         {
             var builder = new ContainerBuilder();
             var container = new Container();
+#pragma warning disable CS0618
             builder.Update(container);
+#pragma warning restore CS0618
             Assert.False(container.IsRegistered<IEnumerable<object>>());
         }
 
@@ -445,7 +445,9 @@ namespace Autofac.Test
 
             var builder2 = new ContainerBuilder();
             builder2.RegisterInstance(startable2).As<IStartable>();
+#pragma warning disable CS0618
             builder2.Update(container);
+#pragma warning restore CS0618
 
             Assert.Equal(1, startable1.StartCount);
             Assert.Equal(1, startable2.StartCount);
@@ -461,7 +463,9 @@ namespace Autofac.Test
 
             var builder = new ContainerBuilder();
             builder.RegisterInstance(startable).As<IStartable>();
+#pragma warning disable CS0618
             builder.Update(container);
+#pragma warning restore CS0618
 
             Assert.Equal(1, startable.StartCount);
         }
@@ -520,6 +524,34 @@ namespace Autofac.Test
             public void Start()
             {
             }
+        }
+
+        [Fact]
+        public void CtorCreatesDefaultPropertyBag()
+        {
+            var builder = new ContainerBuilder();
+            Assert.NotNull(builder.Properties);
+        }
+
+        [Fact]
+        public void RegistrationsCanUsePropertyBag()
+        {
+            var builder = new ContainerBuilder();
+            builder.Properties["count"] = 0;
+            builder.Register(ctx =>
+            {
+                // TOTALLY not thread-safe, but illustrates the point.
+                var count = (int)ctx.ComponentRegistry.Properties["count"];
+                count++;
+                ctx.ComponentRegistry.Properties["count"] = count;
+                return "incremented";
+            }).As<string>();
+            var container = builder.Build();
+
+            container.Resolve<string>();
+            container.Resolve<string>();
+
+            Assert.Equal(2, container.ComponentRegistry.Properties["count"]);
         }
     }
 }

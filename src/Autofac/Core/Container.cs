@@ -45,9 +45,10 @@ namespace Autofac.Core
         /// <summary>
         /// Initializes a new instance of the <see cref="Container"/> class.
         /// </summary>
-        internal Container()
+        /// <param name="properties">The properties used during component registration.</param>
+        internal Container(IDictionary<string, object> properties = null)
         {
-            ComponentRegistry = new ComponentRegistry();
+            ComponentRegistry = new ComponentRegistry(properties ?? new Dictionary<string, object>());
 
             ComponentRegistry.Register(new ComponentRegistration(
                 LifetimeScope.SelfRegistrationId,
@@ -88,7 +89,7 @@ namespace Autofac.Core
         /// will be disposed along with it.
         /// </summary>
         /// <param name="configurationAction">Action on a <see cref="ContainerBuilder"/>
-        /// that adds component registations visible only in the new scope.</param>
+        /// that adds component registrations visible only in the new scope.</param>
         /// <returns>A new lifetime scope.</returns>
         public ILifetimeScope BeginLifetimeScope(Action<ContainerBuilder> configurationAction)
         {
@@ -102,7 +103,7 @@ namespace Autofac.Core
         /// </summary>
         /// <param name="tag">The tag applied to the <see cref="ILifetimeScope"/>.</param>
         /// <param name="configurationAction">Action on a <see cref="ContainerBuilder"/>
-        /// that adds component registations visible only in the new scope.</param>
+        /// that adds component registrations visible only in the new scope.</param>
         /// <returns>A new lifetime scope.</returns>
         public ILifetimeScope BeginLifetimeScope(object tag, Action<ContainerBuilder> configurationAction)
         {

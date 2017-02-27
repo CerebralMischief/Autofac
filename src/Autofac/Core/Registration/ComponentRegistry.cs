@@ -65,6 +65,32 @@ namespace Autofac.Core.Registration
         private readonly IDictionary<Service, ServiceRegistrationInfo> _serviceInfo = new Dictionary<Service, ServiceRegistrationInfo>();
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="ComponentRegistry"/> class.
+        /// </summary>
+        public ComponentRegistry()
+            : this(new Dictionary<string, object>())
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ComponentRegistry"/> class.
+        /// </summary>
+        /// <param name="properties">The properties used during component registration.</param>
+        internal ComponentRegistry(IDictionary<string, object> properties)
+        {
+            Properties = properties;
+        }
+
+        /// <summary>
+        /// Gets the set of properties used during component registration.
+        /// </summary>
+        /// <value>
+        /// An <see cref="IDictionary{TKey, TValue}"/> that can be used to share
+        /// context across registrations.
+        /// </value>
+        public IDictionary<string, object> Properties { get; }
+
+        /// <summary>
         /// Releases unmanaged and - optionally - managed resources
         /// </summary>
         /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>

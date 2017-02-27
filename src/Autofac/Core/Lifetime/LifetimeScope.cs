@@ -196,7 +196,7 @@ namespace Autofac.Core.Lifetime
 
         private ScopeRestrictedRegistry CreateScopeRestrictedRegistry(object tag, Action<ContainerBuilder> configurationAction)
         {
-            var builder = new ContainerBuilder();
+            var builder = new ContainerBuilder(new FallbackDictionary<string, object>(ComponentRegistry.Properties));
 
             foreach (var source in ComponentRegistry.Sources
                 .Where(src => src.IsAdapterForIndividualComponents))
@@ -216,8 +216,8 @@ namespace Autofac.Core.Lifetime
 
             configurationAction(builder);
 
-            var locals = new ScopeRestrictedRegistry(tag);
-            builder.Update(locals);
+            var locals = new ScopeRestrictedRegistry(tag, builder.Properties);
+            builder.UpdateRegistry(locals);
             return locals;
         }
 
@@ -309,7 +309,11 @@ namespace Autofac.Core.Lifetime
             {
                 var handler = CurrentScopeEnding;
                 handler?.Invoke(this, new LifetimeScopeEndingEventArgs(this));
+
                 Disposer.Dispose();
+
+                // ReSharper disable once InconsistentlySynchronizedField
+                _sharedInstances.Clear();
             }
 
             base.Dispose(disposing);

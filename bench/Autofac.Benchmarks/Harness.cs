@@ -1,5 +1,5 @@
-﻿// This software is part of the Autofac IoC container
-// Copyright © 2016 Autofac Contributors
+// This software is part of the Autofac IoC container
+// Copyright ? 2011 Autofac Contributors
 // http://autofac.org
 //
 // Permission is hereby granted, free of charge, to any person
@@ -16,19 +16,30 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-// OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// OF MERCHANTABILITY, FITNESS FOR A1 PARTICULAR PURPOSE AND
 // NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
 // HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 // OTHER DEALINGS IN THE SOFTWARE.
 
-#if !NET45
-namespace System
+using BenchmarkDotNet.Running;
+using Xunit;
+
+namespace Autofac.Benchmarks
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Enum | AttributeTargets.Delegate, Inherited = false)]
-    public sealed class SerializableAttribute : Attribute
+    public class Harness
     {
+        [Fact]
+        public void RootContainerResolve()
+        {
+            BenchmarkRunner.Run<RootContainerResolveBenchmark>();
+        }
+
+        [Fact]
+        public void DeepGraphResolve()
+        {
+            BenchmarkRunner.Run<DeepGraphResolveBenchmark>();
+        }
     }
 }
-#endif

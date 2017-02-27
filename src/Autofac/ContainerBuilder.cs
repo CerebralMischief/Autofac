@@ -62,19 +62,47 @@ namespace Autofac
     /// <see cref="RegistrationExtensions"/>
     public class ContainerBuilder
     {
-        private readonly IList<Action<IComponentRegistry>> _configurationCallbacks = new List<Action<IComponentRegistry>>();
+        private readonly IList<DeferredCallback> _configurationCallbacks = new List<DeferredCallback>();
         private bool _wasBuilt;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ContainerBuilder"/> class.
+        /// </summary>
+        public ContainerBuilder()
+            : this(new Dictionary<string, object>())
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ContainerBuilder"/> class.
+        /// </summary>
+        /// <param name="properties">The properties used during component registration.</param>
+        internal ContainerBuilder(IDictionary<string, object> properties)
+        {
+            Properties = properties;
+        }
+
+        /// <summary>
+        /// Gets the set of properties used during component registration.
+        /// </summary>
+        /// <value>
+        /// An <see cref="IDictionary{TKey, TValue}"/> that can be used to share
+        /// context across registrations.
+        /// </value>
+        public IDictionary<string, object> Properties { get; }
 
         /// <summary>
         /// Register a callback that will be invoked when the container is configured.
         /// </summary>
         /// <remarks>This is primarily for extending the builder syntax.</remarks>
         /// <param name="configurationCallback">Callback to execute.</param>
-        public virtual void RegisterCallback(Action<IComponentRegistry> configurationCallback)
+        public virtual DeferredCallback RegisterCallback(Action<IComponentRegistry> configurationCallback)
         {
             if (configurationCallback == null) throw new ArgumentNullException(nameof(configurationCallback));
 
-            _configurationCallbacks.Add(configurationCallback);
+            var c = new DeferredCallback(configurationCallback);
+            _configurationCallbacks.Add(c);
+            return c;
         }
 
         /// <summary>
@@ -91,7 +119,7 @@ namespace Autofac
         /// <returns>A new container with the configured component registrations.</returns>
         public IContainer Build(ContainerBuildOptions options = ContainerBuildOptions.None)
         {
-            var result = new Container();
+            var result = new Container(Properties);
             Build(result.ComponentRegistry, (options & ContainerBuildOptions.ExcludeDefaultModules) != ContainerBuildOptions.None);
             if ((options & ContainerBuildOptions.IgnoreStartableComponents) == ContainerBuildOptions.None)
                 StartStartableComponents(result);
@@ -146,6 +174,7 @@ namespace Autofac
         /// </remarks>
         /// <param name="container">An existing container to make the registrations in.</param>
         [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification = "You can't update any arbitrary context, only containers.")]
+        [Obsolete("Containers should generally be considered immutable. Register all of your dependencies before building/resolving. If you need to change the contents of a container, you technically should rebuild the container. This method may be removed in a future major release.")]
         public void Update(IContainer container)
         {
             Update(container, ContainerBuildOptions.None);
@@ -162,6 +191,7 @@ namespace Autofac
         /// <param name="container">An existing container to make the registrations in.</param>
         /// <param name="options">Options that influence the way the container is updated.</param>
         [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification = "You can't update any arbitrary context, only containers.")]
+        [Obsolete("Containers should generally be considered immutable. Register all of your dependencies before building/resolving. If you need to change the contents of a container, you technically should rebuild the container. This method may be removed in a future major release.")]
         public void Update(IContainer container, ContainerBuildOptions options)
         {
             // Issue #462: The ContainerBuildOptions parameter is added here as an overload
@@ -182,7 +212,23 @@ namespace Autofac
         /// - this prevents ownership issues for provided instances.
         /// </remarks>
         /// <param name="componentRegistry">An existing registry to make the registrations in.</param>
+        [Obsolete("Containers should generally be considered immutable. Register all of your dependencies before building/resolving. If you need to change the contents of a container, you technically should rebuild the container. This method may be removed in a future major release.")]
         public void Update(IComponentRegistry componentRegistry)
+        {
+            this.UpdateRegistry(componentRegistry);
+        }
+
+        /// <summary>
+        /// Configure an existing registry with the component registrations
+        /// that have been made. Primarily useful in dynamically adding registrations
+        /// to a child lifetime scope.
+        /// </summary>
+        /// <remarks>
+        /// Update can only be called once per <see cref="ContainerBuilder"/>
+        /// - this prevents ownership issues for provided instances.
+        /// </remarks>
+        /// <param name="componentRegistry">An existing registry to make the registrations in.</param>
+        internal void UpdateRegistry(IComponentRegistry componentRegistry)
         {
             if (componentRegistry == null) throw new ArgumentNullException(nameof(componentRegistry));
             Build(componentRegistry, true);
@@ -201,7 +247,7 @@ namespace Autofac
                 RegisterDefaultAdapters(componentRegistry);
 
             foreach (var callback in _configurationCallbacks)
-                callback(componentRegistry);
+                callback.Callback(componentRegistry);
         }
 
         private void RegisterDefaultAdapters(IComponentRegistry componentRegistry)

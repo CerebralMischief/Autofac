@@ -31,7 +31,7 @@ using Autofac.Core;
 namespace Autofac
 {
     /// <summary>
-    /// Base class for user-defined modules. Modules can add a set of releated components
+    /// Base class for user-defined modules. Modules can add a set of related components
     /// to a container (<see cref="Module.Load"/>) or attach cross-cutting functionality
     /// to other components (<see cref="Module.AttachToComponentRegistration"/>.
     /// Modules are given special support in the XML configuration feature - see
@@ -76,9 +76,10 @@ namespace Autofac
         {
             if (componentRegistry == null) throw new ArgumentNullException(nameof(componentRegistry));
 
-            var moduleBuilder = new ContainerBuilder();
+            var moduleBuilder = new ContainerBuilder(componentRegistry.Properties);
+
             Load(moduleBuilder);
-            moduleBuilder.Update(componentRegistry);
+            moduleBuilder.UpdateRegistry(componentRegistry);
             AttachToRegistrations(componentRegistry);
             AttachToSources(componentRegistry);
         }
@@ -149,10 +150,10 @@ namespace Autofac
         {
             get
             {
-                var thisType = this.GetType();
+                var thisType = GetType();
                 var baseType = thisType.GetTypeInfo().BaseType;
                 if (baseType != typeof(Module))
-                    throw new InvalidOperationException(String.Format(CultureInfo.CurrentCulture, ModuleResources.ThisAssemblyUnavailable, thisType, baseType));
+                    throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, ModuleResources.ThisAssemblyUnavailable, thisType, baseType));
 
                 return thisType.GetTypeInfo().Assembly;
             }

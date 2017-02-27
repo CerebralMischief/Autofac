@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Autofac {
+namespace Autofac.Util {
     using System;
     using System.Reflection;
     
@@ -22,13 +22,13 @@ namespace Autofac {
     // with the /str option, or rebuild your VS project.
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    public class RegistrationExtensionsResources {
+    public class FallbackDictionaryResources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
-        internal RegistrationExtensionsResources() {
+        internal FallbackDictionaryResources() {
         }
         
         /// <summary>
@@ -38,7 +38,7 @@ namespace Autofac {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Autofac.RegistrationExtensionsResources", typeof(RegistrationExtensionsResources).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Autofac.Util.FallbackDictionaryResources", typeof(FallbackDictionaryResources).GetTypeInfo().Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -60,47 +60,11 @@ namespace Autofac {
         }
         
         /// <summary>
-        ///    Looks up a localized string similar to The instance  registration &apos;{0}&apos; can support SingleInstance() sharing only..
+        ///    Looks up a localized string similar to Item has already been added with key &apos;{0}&apos;..
         /// </summary>
-        public static string InstanceRegistrationsAreSingleInstanceOnly {
+        public static string DuplicateItem {
             get {
-                return ResourceManager.GetString("InstanceRegistrationsAreSingleInstanceOnly", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///    Looks up a localized string similar to A metadata attribute of type &apos;{0}&apos; was not found on &apos;{1}&apos;..
-        /// </summary>
-        public static string MetadataAttributeNotFound {
-            get {
-                return ResourceManager.GetString("MetadataAttributeNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///    Looks up a localized string similar to More than one metadata attribute of type &apos;{0}&apos; was found on &apos;{1}&apos;..
-        /// </summary>
-        public static string MultipleMetadataAttributesSameType {
-            get {
-                return ResourceManager.GetString("MultipleMetadataAttributesSameType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///    Looks up a localized string similar to No matching constructor exists on type &apos;{0}&apos;..
-        /// </summary>
-        public static string NoMatchingConstructorExists {
-            get {
-                return ResourceManager.GetString("NoMatchingConstructorExists", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///    Looks up a localized string similar to You can only attach a registration predicate to a registration that has a callback container attached (e.g., one that was made with a standard ContainerBuilder extension method)..
-        /// </summary>
-        public static string OnlyIfRequiresCallbackContainer {
-            get {
-                return ResourceManager.GetString("OnlyIfRequiresCallbackContainer", resourceCulture);
+                return ResourceManager.GetString("DuplicateItem", resourceCulture);
             }
         }
     }
